@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>統計占い | 科学と星が導く今日の運勢</title>
+<meta name="description" content="心理学・出生季節効果・バイオリズム研究に基づいた12星座の今日の運勢。科学的根拠のある占いで、あなたの1日をナビゲートします。">
+<meta property="og:title" content="統計占い | 科学と星が導く今日の運勢">
+<meta property="og:description" content="心理学・統計学ベースの12星座占い。毎朝6時更新。">
+<meta property="og:type" content="website">
+<style>
+  /* ─── リセット & 変数 ─────────────────────── */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a1a;
+    --card:#111132;
+    --accent:#9b59b6;
+    --accent2:#f39c12;
+    --text:#e8e8f0;
+    --muted:#888aaa;
+    --border:#2a2a4a;
+    --gold:#f1c40f;
+    --radius:16px;
+  }
+
+  /* ─── 基本レイアウト ─────────────────────── */
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Hiragino Sans','Noto Sans JP',sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+  }
+
+  /* ─── 星空背景 ───────────────────────────── */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(155,89,182,.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(52,152,219,.1) 0%, transparent 50%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ─── ヘッダー ───────────────────────────── */
+  header{
+    text-align:center;
+    padding:60px 20px 40px;
+    position:relative;
+    z-index:1;
+  }
+  .logo{
+    font-size:clamp(2rem,6vw,3.5rem);
+    font-weight:900;
+    background:linear-gradient(135deg,#9b59b6,#3498db,#f39c12);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    letter-spacing:-.02em;
+  }
+  .logo-sub{
+    font-size:.9rem;
+    color:var(--muted);
+    margin-top:8px;
+    letter-spacing:.1em;
+  }
+  .update-badge{
+    display:inline-block;
+    margin-top:16px;
+    background:rgba(155,89,182,.2);
+    border:1px solid rgba(155,89,182,.4);
+    border-radius:100px;
+    padding:4px 16px;
+    font-size:.8rem;
+    color:var(--accent);
+  }
+
+  /* ─── セクション共通 ─────────────────────── */
+  .section{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 20px 60px;
+    position:relative;
+    z-index:1;
+  }
+  .section-title{
+    font-size:1.4rem;
+    font-weight:700;
+    text-align:center;
+    margin-bottom:32px;
+    color:var(--text);
+  }
+  .section-title span{
+    color:var(--accent);
+  }
+
+  /* ─── 星座グリッド ───────────────────────── */
+  .zodiac-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+    gap:12px;
+  }
+  .zodiac-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 12px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .2s,border-color .2s,box-shadow .2s;
+    user-select:none;
+  }
+  .zodiac-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--accent);
+    box-shadow:0 8px 24px rgba(155,89,182,.3);
+  }
+  .zodiac-card.active{
+    border-color:var(--gold);
+    box-shadow:0 0 0 2px var(--gold),0 8px 24px rgba(241,196,15,.2);
+  }
+  .zodiac-emoji{font-size:2rem;display:block;margin-bottom:8px}
+  .zodiac-name{font-size:.85rem;font-weight:600;color:var(--text)}
+
+  /* ─── 運勢表示パネル ─────────────────────── */
+  #fortune-panel{
+    margin-top:40px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:40px;
+    min-height:200px;
+    display:none;
+    animation:fadeIn .4s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  #fortune-panel.visible{display:block}
+
+  .fortune-header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--border);
+  }
+  .fortune-sign-emoji{font-size:3rem}
+  .fortune-sign-name{font-size:1.8rem;font-weight:800}
+  .fortune-date{font-size:.85rem;color:var(--muted);margin-top:4px}
+
+  .fortune-body{line-height:1.9;color:var(--text)}
+  .fortune-body h2,.fortune-body h3{
+    color:var(--accent);
+    margin:24px 0 8px;
+    font-size:1.1rem;
+  }
+  .fortune-body strong{color:var(--gold)}
+  .fortune-body ul{padding-left:1.5em}
+  .fortune-body li{margin:.4em 0}
+  .fortune-body p{margin:.8em 0}
+
+  /* ─── CTA ────────────────────────────────── */
+  .cta-box{
+    margin-top:40px;
+    background:linear-gradient(135deg,rgba(155,89,182,.2),rgba(243,156,18,.1));
+    border:1px solid rgba(155,89,182,.4);
+    border-radius:var(--radius);
+    padding:32px;
+    text-align:center;
+  }
+  .cta-title{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+  .cta-desc{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+  .btn{
+    display:inline-block;
+    background:linear-gradient(135deg,var(--accent),#3498db);
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    padding:14px 36px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    text-decoration:none;
+    transition:opacity .2s,transform .2s;
+  }
+  .btn:hover{opacity:.85;transform:translateY(-2px)}
+  .btn-outline{
+    background:transparent;
+    border:2px solid var(--accent);
+    color:var(--accent);
+    margin-left:12px;
+  }
+
+  /* ─── ローディング ───────────────────────── */
+  .loading{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+  }
+  .spinner{
+    width:40px;height:40px;
+    border:3px solid var(--border);
+    border-top-color:var(--accent);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:0 auto 16px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ─── SNSバナー ──────────────────────────── */
+  .sns-bar{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    flex-wrap:wrap;
+    margin:40px 0;
+  }
+  .sns-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 24px;
+    border-radius:100px;
+    font-size:.9rem;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid;
+    transition:transform .2s,opacity .2s;
+  }
+  .sns-btn:hover{transform:translateY(-2px);opacity:.85}
+  .sns-x{background:#000;border-color:#333;color:#fff}
+  .sns-threads{background:#1a1a1a;border-color:#444;color:#fff}
+
+  /* ─── フッター ───────────────────────────── */
+  footer{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--muted);
+    font-size:.8rem;
+    border-top:1px solid var(--border);
+    position:relative;
+    z-index:1;
+  }
+  footer a{color:var(--accent);text-decoration:none}
+
+  /* ─── レスポンシブ ───────────────────────── */
+  @media(max-width:600px){
+    #fortune-panel{padding:24px 16px}
+    .fortune-header{flex-direction:column;text-align:center}
+    .btn{display:block;margin:8px auto}
+    .btn-outline{margin-left:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <div class="logo">🔮 統計占い</div>
+  <p class="logo-sub">科学と星が導く、あなたの今日</p>
+  <span class="update-badge" id="update-badge">⏳ 読み込み中…</span>
+</header>
+
+<!-- メイン -->
+<main>
+
+  <!-- 星座選択 -->
+  <div class="section">
+    <p class="section-title">あなたの<span>星座</span>を選んでください</p>
+    <div class="zodiac-grid" id="zodiac-grid">
+      <!-- JS で動的生成 -->
+    </div>
+
+    <!-- 運勢パネル -->
+    <div id="fortune-panel">
+      <div class="loading" id="fortune-loading">
+        <div class="spinner"></div>
+        <p>運勢を読み込んでいます…</p>
+      </div>
+      <div id="fortune-content" style="display:none">
+        <div class="fortune-header">
+          <span class="fortune-sign-emoji" id="f-emoji"></span>
+          <div>
+            <div class="fortune-sign-name" id="f-name"></div>
+            <div class="fortune-date" id="f-date"></div>
+          </div>
+        </div>
+        <div class="fortune-body" id="f-body"></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box" style="margin-top:40px">
+      <div class="cta-title">✨ さらに詳しい個別鑑定</div>
+      <div class="cta-desc">
+        生年月日・お名前・お悩みをお伝えいただくと、<br>
+        統計データと心理学に基づいたパーソナル鑑定書（PDF）をお届けします。
+      </div>
+      <a href="https://lin.ee/XXXXXXX" class="btn" target="_blank">🌙 無料で相談する（LINE）</a>
+      <a href="#" class="btn btn-outline" onclick="alert('準備中です')">📄 鑑定書を購入する</a>
+    </div>
+  </div>
+
+  <!-- SNSフォロー -->
+  <div class="section" style="padding-top:0">
+    <p class="section-title"><span>SNS</span>で毎朝の運勢をチェック</p>
+    <div class="sns-bar">
+      <a href="https://x.com/YOUR_ACCOUNT" class="sns-btn sns-x" target="_blank">
+        𝕏 フォローする
+      </a>
+      <a href="https://www.threads.net/@YOUR_ACCOUNT" class="sns-btn sns-threads" target="_blank">
+        ≡ Threads をフォロー
+      </a>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem">
+      毎朝6時に12星座の運勢を自動投稿中 📊
+    </p>
+  </div>
+
+</main>
+
+<!-- フッター -->
+<footer>
+  <p>統計占いは、出生季節効果・バイオリズム理論・心理学研究に基づく傾向分析です。</p>
+  <p style="margin-top:8px">医療・法律・財務上の判断には使用しないでください。</p>
+  <p style="margin-top:16px">
+    <a href="#">プライバシーポリシー</a> ／
+    <a href="#">お問い合わせ</a>
+  </p>
+  <p style="margin-top:16px;font-size:.75rem">© 2026 統計占い All Rights Reserved.</p>
+</footer>
+
+<script>
+// ─── 星座データ ──────────────────────────────────
+const SIGNS = [
+  {name:"牡羊座",emoji:"♈"},
+  {name:"牡牛座",emoji:"♉"},
+  {name:"双子座",emoji:"♊"},
+  {name:"蟹座",  emoji:"♋"},
+  {name:"獅子座",emoji:"♌"},
+  {name:"乙女座",emoji:"♍"},
+  {name:"天秤座",emoji:"♎"},
+  {name:"蠍座",  emoji:"♏"},
+  {name:"射手座",emoji:"♐"},
+  {name:"山羊座",emoji:"♑"},
+  {name:"水瓶座",emoji:"♒"},
+  {name:"魚座",  emoji:"♓"},
+];
+
+// ─── グローバル状態 ────────────────────────────────
+let fortuneData = null;
+
+// ─── データ読み込み ────────────────────────────────
+async function loadFortune(){
+  try{
+    const cacheBust = new Date().toISOString().split('T')[0]; // 日付変わりでキャッシュ回避
+    const res = await fetch(`data/fortune_latest.json?v=${cacheBust}`);
+    if(!res.ok) throw new Error('データ未生成');
+    fortuneData = await res.json();
+    document.getElementById('update-badge').textContent =
+      `✨ ${fortuneData.date_jp} 更新済み`;
+  }catch(e){
+    document.getElementById('update-badge').textContent = '⚠ データ準備中（初回は手動実行が必要）';
+    console.warn('fortune_latest.json が見つかりません:', e.message);
+  }
+}
+
+// ─── 星座グリッド生成 ──────────────────────────────
+function buildGrid(){
+  const grid = document.getElementById('zodiac-grid');
+  SIGNS.forEach(sign => {
+    const card = document.createElement('div');
+    card.className = 'zodiac-card';
+    card.dataset.sign = sign.name;
+    card.innerHTML = `<span class="zodiac-emoji">${sign.emoji}</span><span class="zodiac-name">${sign.name}</span>`;
+    card.addEventListener('click', () => selectSign(sign.name, sign.emoji, card));
+    grid.appendChild(card);
+  });
+}
+
+// ─── 星座選択 ─────────────────────────────────────
+function selectSign(name, emoji, card){
+  // アクティブ状態切り替え
+  document.querySelectorAll('.zodiac-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+
+  const panel = document.getElementById('fortune-panel');
+  panel.classList.add('visible');
+
+  if(!fortuneData){
+    showFallback(name, emoji);
+    return;
+  }
+
+  const signData = fortuneData.signs[name];
+  if(!signData){
+    showFallback(name, emoji);
+    return;
+  }
+
+  // パネルを表示
+  document.getElementById('fortune-loading').style.display = 'none';
+  const content = document.getElementById('fortune-content');
+  content.style.display = 'block';
+
+  document.getElementById('f-emoji').textContent = emoji;
+  document.getElementById('f-name').textContent = name;
+  document.getElementById('f-date').textContent = fortuneData.date_jp + ' の運勢';
+
+  // Markdown を簡易レンダリング
+  document.getElementById('f-body').innerHTML = simpleMarkdown(signData.website || signData.tweet);
+
+  // スクロール
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ─── データなし時のフォールバック ──────────────────
+function showFallback(name, emoji){
+  document.getElementById('fortune-loading').style.display = 'none';
+  const content = document.getElementById('fortune-content');
+  content.style.display = 'block';
+  document.getElementById('f-emoji').textContent = emoji;
+  document.getElementById('f-name').textContent = name;
+  document.getElementById('f-date').textContent = '準備中';
+  document.getElementById('f-body').innerHTML =
+    '<p>本日の運勢データを準備中です。<br>毎朝6時に更新されます。<br>SNS でも最新の運勢を配信中！</p>';
+}
+
+// ─── 簡易 Markdown → HTML ─────────────────────────
+function simpleMarkdown(md){
+  if(!md) return '';
+  return md
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    .replace(/\n{2,}/g,'</p><p>')
+    .replace(/^(?!<[hup])/gm,'')
+    .trim()
+    .replace(/^(.)/,'<p>$1')
+    .replace(/(.)$/,'$1</p>');
+}
+
+// ─── 初期化 ───────────────────────────────────────
+(async function init(){
+  buildGrid();
+  await loadFortune();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+# daily_fortune.yml
+# ────────────────────────────────────────────────
+# 毎朝6時（JST）に自動実行される GitHub Actions ワークフロー。
+# - 運勢コンテンツを生成
+# - X / Threads に投稿
+# - 生成した JSON をリポジトリにコミット（Web サイト用）
+
+name: 毎日の運勢 自動投稿
+
+on:
+  schedule:
+    - cron: '0 21 * * *'   # UTC 21:00 = JST 翌朝 6:00
+  workflow_dispatch:         # GitHub 画面から手動実行も可能
+
+jobs:
+  post_fortune:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ① リポジトリをチェックアウト
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ② Python 環境セットアップ
+      - name: Python 3.11 セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ③ 依存パッケージをインストール
+      - name: 依存パッケージをインストール
+        run: pip install -r requirements.txt
+
+      # ④ 運勢生成 + 投稿
+      - name: 運勢を生成して投稿
+        env:
+          ANTHROPIC_API_KEY:       ${{ secrets.ANTHROPIC_API_KEY }}
+          X_API_KEY:               ${{ secrets.X_API_KEY }}
+          X_API_SECRET:            ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN:          ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET:   ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          THREADS_USER_ID:         ${{ secrets.THREADS_USER_ID }}
+          THREADS_ACCESS_TOKEN:    ${{ secrets.THREADS_ACCESS_TOKEN }}
+        run: |
+          cd scripts
+          python main.py
+
+      # ⑤ 生成した JSON をリポジトリにコミット（Web サイトが読む）
+      - name: fortune_latest.json をコミット
+        run: |
+          git config user.name  "fortune-bot"
+          git config user.email "fortune-bot@users.noreply.github.com"
+          git add docs/data/
+          git diff --staged --quiet || git commit -m "🔮 $(date '+%Y-%m-%d') の運勢を更新"
+          git push
