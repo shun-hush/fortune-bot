@@ -4,26 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>統計占い | 科学と星が導く今日の運勢</title>
-<meta name="description" content="心理学・出生季節効果・バイオリズム研究に基づいた12星座の今日の運勢。科学的根拠のある占いで、あなたの1日をナビゲートします。">
+<meta name="description" content="心理学・出生季節効果・バイオリズム研究に基づいた12星座の今日の運勢。生年月日を入力してパーソナル鑑定も無料で受けられます。">
 <meta property="og:title" content="統計占い | 科学と星が導く今日の運勢">
-<meta property="og:description" content="心理学・統計学ベースの12星座占い。毎朝6時更新。">
+<meta property="og:description" content="心理学・統計学ベースの12星座占い＋生年月日パーソナル鑑定。毎朝6時更新。">
 <meta property="og:type" content="website">
 <style>
-  /* ─── リセット & 変数 ─────────────────────── */
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
     --bg:#0a0a1a;
     --card:#111132;
+    --card2:#0e0e28;
     --accent:#9b59b6;
     --accent2:#f39c12;
+    --blue:#3498db;
+    --green:#2ecc71;
+    --red:#e74c3c;
     --text:#e8e8f0;
     --muted:#888aaa;
     --border:#2a2a4a;
     --gold:#f1c40f;
     --radius:16px;
   }
-
-  /* ─── 基本レイアウト ─────────────────────── */
   html{scroll-behavior:smooth}
   body{
     background:var(--bg);
@@ -32,8 +33,6 @@
     line-height:1.7;
     min-height:100vh;
   }
-
-  /* ─── 星空背景 ───────────────────────────── */
   body::before{
     content:'';
     position:fixed;
@@ -45,7 +44,7 @@
     z-index:0;
   }
 
-  /* ─── ヘッダー ───────────────────────────── */
+  /* ヘッダー */
   header{
     text-align:center;
     padding:60px 20px 40px;
@@ -61,12 +60,7 @@
     background-clip:text;
     letter-spacing:-.02em;
   }
-  .logo-sub{
-    font-size:.9rem;
-    color:var(--muted);
-    margin-top:8px;
-    letter-spacing:.1em;
-  }
+  .logo-sub{font-size:.9rem;color:var(--muted);margin-top:8px;letter-spacing:.1em}
   .update-badge{
     display:inline-block;
     margin-top:16px;
@@ -78,7 +72,7 @@
     color:var(--accent);
   }
 
-  /* ─── セクション共通 ─────────────────────── */
+  /* セクション */
   .section{
     max-width:1100px;
     margin:0 auto;
@@ -93,11 +87,9 @@
     margin-bottom:32px;
     color:var(--text);
   }
-  .section-title span{
-    color:var(--accent);
-  }
+  .section-title span{color:var(--accent)}
 
-  /* ─── 星座グリッド ───────────────────────── */
+  /* 星座グリッド */
   .zodiac-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
@@ -123,46 +115,262 @@
     box-shadow:0 0 0 2px var(--gold),0 8px 24px rgba(241,196,15,.2);
   }
   .zodiac-emoji{font-size:2rem;display:block;margin-bottom:8px}
-  .zodiac-name{font-size:.85rem;font-weight:600;color:var(--text)}
+  .zodiac-name{font-size:.85rem;font-weight:600}
 
-  /* ─── 運勢表示パネル ─────────────────────── */
+  /* 運勢パネル */
   #fortune-panel{
     margin-top:40px;
     background:var(--card);
     border:1px solid var(--border);
     border-radius:var(--radius);
     padding:40px;
-    min-height:200px;
     display:none;
     animation:fadeIn .4s ease;
   }
   @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   #fortune-panel.visible{display:block}
-
   .fortune-header{
-    display:flex;
-    align-items:center;
-    gap:16px;
-    margin-bottom:28px;
-    padding-bottom:20px;
+    display:flex;align-items:center;gap:16px;
+    margin-bottom:28px;padding-bottom:20px;
     border-bottom:1px solid var(--border);
   }
   .fortune-sign-emoji{font-size:3rem}
   .fortune-sign-name{font-size:1.8rem;font-weight:800}
   .fortune-date{font-size:.85rem;color:var(--muted);margin-top:4px}
-
   .fortune-body{line-height:1.9;color:var(--text)}
-  .fortune-body h2,.fortune-body h3{
-    color:var(--accent);
-    margin:24px 0 8px;
-    font-size:1.1rem;
-  }
+  .fortune-body h2,.fortune-body h3{color:var(--accent);margin:24px 0 8px;font-size:1.1rem}
   .fortune-body strong{color:var(--gold)}
   .fortune-body ul{padding-left:1.5em}
   .fortune-body li{margin:.4em 0}
   .fortune-body p{margin:.8em 0}
 
-  /* ─── CTA ────────────────────────────────── */
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     パーソナル鑑定セクション（NEW）
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .personal-section{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 20px 60px;
+    position:relative;
+    z-index:1;
+  }
+  .personal-input-box{
+    background:linear-gradient(135deg,rgba(155,89,182,.15),rgba(52,152,219,.1));
+    border:1px solid rgba(155,89,182,.4);
+    border-radius:var(--radius);
+    padding:40px;
+    text-align:center;
+  }
+  .personal-input-box h2{
+    font-size:1.5rem;
+    font-weight:800;
+    margin-bottom:8px;
+    background:linear-gradient(135deg,#9b59b6,#3498db);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .personal-input-box p{color:var(--muted);font-size:.9rem;margin-bottom:28px}
+
+  .date-inputs{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .date-inputs select{
+    background:var(--card);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:1rem;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  .date-inputs select:focus{outline:none;border-color:var(--accent)}
+  .date-label{color:var(--muted);font-size:.9rem}
+
+  .btn-personal{
+    display:inline-block;
+    background:linear-gradient(135deg,var(--accent),var(--blue));
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    padding:14px 40px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:opacity .2s,transform .2s;
+  }
+  .btn-personal:hover{opacity:.85;transform:translateY(-2px)}
+
+  /* パーソナル結果カード */
+  #personal-result{
+    display:none;
+    margin-top:32px;
+    animation:fadeIn .5s ease;
+  }
+  #personal-result.visible{display:block}
+
+  .personal-header{
+    text-align:center;
+    margin-bottom:28px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--border);
+  }
+  .personal-header .birth-display{
+    font-size:.9rem;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .personal-header .personal-title{
+    font-size:1.6rem;
+    font-weight:800;
+    color:var(--text);
+  }
+
+  .personal-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+    margin-bottom:28px;
+  }
+  .personal-card{
+    background:var(--card2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px;
+  }
+  .personal-card-title{
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.1em;
+    color:var(--muted);
+    margin-bottom:16px;
+    text-transform:uppercase;
+  }
+
+  /* バイオリズムバー */
+  .biorhythm-list{display:flex;flex-direction:column;gap:14px}
+  .bio-item{}
+  .bio-label{
+    display:flex;
+    justify-content:space-between;
+    font-size:.85rem;
+    margin-bottom:6px;
+  }
+  .bio-label span:first-child{color:var(--text);font-weight:600}
+  .bio-label span:last-child{font-size:.8rem}
+  .bio-track{
+    height:10px;
+    background:rgba(255,255,255,.08);
+    border-radius:100px;
+    position:relative;
+    overflow:hidden;
+  }
+  .bio-bar{
+    height:100%;
+    border-radius:100px;
+    transition:width .8s ease;
+    position:absolute;
+    top:0;
+  }
+  /* 中央線 */
+  .bio-track::after{
+    content:'';
+    position:absolute;
+    left:50%;
+    top:0;
+    width:1px;
+    height:100%;
+    background:rgba(255,255,255,.2);
+  }
+
+  /* ライフパスナンバー */
+  .lifepath-number{
+    font-size:4rem;
+    font-weight:900;
+    line-height:1;
+    background:linear-gradient(135deg,var(--gold),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    margin-bottom:8px;
+  }
+  .lifepath-keyword{
+    font-size:1.1rem;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+  .lifepath-desc{font-size:.85rem;color:var(--muted);line-height:1.7}
+
+  /* 干支 */
+  .zodiac-china{
+    font-size:3.5rem;
+    margin-bottom:8px;
+    display:block;
+  }
+  .zodiac-china-name{
+    font-size:1.2rem;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .zodiac-china-desc{font-size:.85rem;color:var(--muted);line-height:1.7}
+
+  /* 生まれ季節 */
+  .season-emoji{font-size:2.5rem;margin-bottom:8px;display:block}
+  .season-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px}
+  .season-desc{font-size:.85rem;color:var(--muted);line-height:1.7}
+
+  /* 今日のメッセージ */
+  .personal-message-box{
+    background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(241,196,15,.05));
+    border:1px solid rgba(155,89,182,.3);
+    border-radius:12px;
+    padding:28px;
+    margin-top:0;
+  }
+  .personal-message-title{
+    font-size:1rem;
+    font-weight:700;
+    color:var(--accent);
+    margin-bottom:16px;
+  }
+  .personal-message-text{
+    font-size:.95rem;
+    line-height:1.9;
+    color:var(--text);
+  }
+
+  /* シェアボタン */
+  .share-area{
+    margin-top:20px;
+    text-align:center;
+  }
+  .btn-share{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#000;
+    color:#fff;
+    border:1px solid #333;
+    border-radius:100px;
+    padding:10px 24px;
+    font-size:.85rem;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .2s,opacity .2s;
+  }
+  .btn-share:hover{transform:translateY(-2px);opacity:.85}
+
+  /* CTA */
   .cta-box{
     margin-top:40px;
     background:linear-gradient(135deg,rgba(155,89,182,.2),rgba(243,156,18,.1));
@@ -175,7 +383,7 @@
   .cta-desc{color:var(--muted);font-size:.9rem;margin-bottom:24px}
   .btn{
     display:inline-block;
-    background:linear-gradient(135deg,var(--accent),#3498db);
+    background:linear-gradient(135deg,var(--accent),var(--blue));
     color:#fff;
     border:none;
     border-radius:100px;
@@ -194,85 +402,62 @@
     margin-left:12px;
   }
 
-  /* ─── ローディング ───────────────────────── */
-  .loading{
-    text-align:center;
-    padding:60px 20px;
-    color:var(--muted);
+  /* SNS */
+  .sns-bar{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:40px 0}
+  .sns-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 24px;border-radius:100px;
+    font-size:.9rem;font-weight:600;text-decoration:none;
+    border:1px solid;transition:transform .2s,opacity .2s;
   }
+  .sns-btn:hover{transform:translateY(-2px);opacity:.85}
+  .sns-x{background:#000;border-color:#333;color:#fff}
+  .sns-threads{background:#1a1a1a;border-color:#444;color:#fff}
+
+  /* ローディング */
+  .loading{text-align:center;padding:60px 20px;color:var(--muted)}
   .spinner{
     width:40px;height:40px;
-    border:3px solid var(--border);
-    border-top-color:var(--accent);
+    border:3px solid var(--border);border-top-color:var(--accent);
     border-radius:50%;
     animation:spin .8s linear infinite;
     margin:0 auto 16px;
   }
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* ─── SNSバナー ──────────────────────────── */
-  .sns-bar{
-    display:flex;
-    justify-content:center;
-    gap:16px;
-    flex-wrap:wrap;
-    margin:40px 0;
-  }
-  .sns-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:12px 24px;
-    border-radius:100px;
-    font-size:.9rem;
-    font-weight:600;
-    text-decoration:none;
-    border:1px solid;
-    transition:transform .2s,opacity .2s;
-  }
-  .sns-btn:hover{transform:translateY(-2px);opacity:.85}
-  .sns-x{background:#000;border-color:#333;color:#fff}
-  .sns-threads{background:#1a1a1a;border-color:#444;color:#fff}
-
-  /* ─── フッター ───────────────────────────── */
   footer{
-    text-align:center;
-    padding:40px 20px;
-    color:var(--muted);
-    font-size:.8rem;
+    text-align:center;padding:40px 20px;
+    color:var(--muted);font-size:.8rem;
     border-top:1px solid var(--border);
-    position:relative;
-    z-index:1;
+    position:relative;z-index:1;
   }
   footer a{color:var(--accent);text-decoration:none}
 
-  /* ─── レスポンシブ ───────────────────────── */
   @media(max-width:600px){
     #fortune-panel{padding:24px 16px}
     .fortune-header{flex-direction:column;text-align:center}
-    .btn{display:block;margin:8px auto}
+    .btn,.btn-outline{display:block;margin:8px auto;text-align:center}
     .btn-outline{margin-left:0}
+    .personal-input-box{padding:24px 16px}
+    .date-inputs{gap:4px}
+    .date-inputs select{padding:8px 10px;font-size:.9rem}
   }
 </style>
 </head>
 <body>
 
-<!-- ヘッダー -->
 <header>
   <div class="logo">🔮 統計占い</div>
   <p class="logo-sub">科学と星が導く、あなたの今日</p>
   <span class="update-badge" id="update-badge">⏳ 読み込み中…</span>
 </header>
 
-<!-- メイン -->
 <main>
 
   <!-- 星座選択 -->
   <div class="section">
     <p class="section-title">あなたの<span>星座</span>を選んでください</p>
-    <div class="zodiac-grid" id="zodiac-grid">
-      <!-- JS で動的生成 -->
-    </div>
+    <div class="zodiac-grid" id="zodiac-grid"></div>
 
     <!-- 運勢パネル -->
     <div id="fortune-panel">
@@ -291,13 +476,118 @@
         <div class="fortune-body" id="f-body"></div>
       </div>
     </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       🎂 パーソナル鑑定セクション（NEW）
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="personal-section">
+    <div class="personal-input-box">
+      <h2>🎂 生年月日でパーソナル鑑定</h2>
+      <p>生年月日を入力すると、バイオリズム・数秘術・干支・生まれ季節から<br>
+         <strong style="color:var(--text)">あなただけの今日のアドバイス</strong>をお届けします</p>
+
+      <div class="date-inputs">
+        <select id="birth-year"></select>
+        <span class="date-label">年</span>
+        <select id="birth-month"></select>
+        <span class="date-label">月</span>
+        <select id="birth-day"></select>
+        <span class="date-label">日</span>
+      </div>
+      <button class="btn-personal" onclick="calcPersonal()">✨ 鑑定する</button>
+
+      <!-- 結果 -->
+      <div id="personal-result">
+        <div class="personal-header">
+          <div class="birth-display" id="p-birth-display"></div>
+          <div class="personal-title">📊 あなたの今日のパーソナルデータ</div>
+        </div>
+
+        <div class="personal-grid">
+
+          <!-- バイオリズム -->
+          <div class="personal-card">
+            <div class="personal-card-title">📈 今日のバイオリズム</div>
+            <div class="biorhythm-list">
+              <div class="bio-item">
+                <div class="bio-label">
+                  <span>💪 身体力</span>
+                  <span id="bio-phys-label" style="color:var(--green)"></span>
+                </div>
+                <div class="bio-track">
+                  <div class="bio-bar" id="bio-phys-bar"></div>
+                </div>
+              </div>
+              <div class="bio-item">
+                <div class="bio-label">
+                  <span>💫 感情力</span>
+                  <span id="bio-emo-label" style="color:var(--accent)"></span>
+                </div>
+                <div class="bio-track">
+                  <div class="bio-bar" id="bio-emo-bar"></div>
+                </div>
+              </div>
+              <div class="bio-item">
+                <div class="bio-label">
+                  <span>🧠 知性力</span>
+                  <span id="bio-int-label" style="color:var(--blue)"></span>
+                </div>
+                <div class="bio-track">
+                  <div class="bio-bar" id="bio-int-bar"></div>
+                </div>
+              </div>
+            </div>
+            <p id="bio-summary" style="margin-top:16px;font-size:.82rem;color:var(--muted);line-height:1.7"></p>
+          </div>
+
+          <!-- ライフパスナンバー -->
+          <div class="personal-card">
+            <div class="personal-card-title">🔢 数秘術 ライフパスナンバー</div>
+            <div class="lifepath-number" id="lp-number"></div>
+            <div class="lifepath-keyword" id="lp-keyword"></div>
+            <div class="lifepath-desc" id="lp-desc"></div>
+          </div>
+
+          <!-- 干支 -->
+          <div class="personal-card">
+            <div class="personal-card-title">🐉 中国干支</div>
+            <span class="zodiac-china" id="china-emoji"></span>
+            <div class="zodiac-china-name" id="china-name"></div>
+            <div class="zodiac-china-desc" id="china-desc"></div>
+          </div>
+
+          <!-- 生まれ季節 -->
+          <div class="personal-card">
+            <div class="personal-card-title">🌸 生まれ季節の特性</div>
+            <span class="season-emoji" id="season-emoji"></span>
+            <div class="season-name" id="season-name"></div>
+            <div class="season-desc" id="season-desc"></div>
+          </div>
+
+        </div>
+
+        <!-- 今日のメッセージ -->
+        <div class="personal-message-box">
+          <div class="personal-message-title">💫 今日のあなたへのメッセージ</div>
+          <div class="personal-message-text" id="personal-message"></div>
+        </div>
+
+        <!-- シェア -->
+        <div class="share-area">
+          <a id="share-btn" href="#" class="btn-share" target="_blank">
+            𝕏 今日の鑑定結果をシェアする
+          </a>
+        </div>
+      </div>
+    </div>
 
     <!-- CTA -->
-    <div class="cta-box" style="margin-top:40px">
+    <div class="cta-box" style="margin-top:32px">
       <div class="cta-title">✨ さらに詳しい個別鑑定</div>
       <div class="cta-desc">
-        生年月日・お名前・お悩みをお伝えいただくと、<br>
-        統計データと心理学に基づいたパーソナル鑑定書（PDF）をお届けします。
+        お名前・お悩みを教えていただくと、統計データと心理学に基づいた<br>
+        フルパーソナル鑑定書（PDF）をお届けします。
       </div>
       <a href="https://lin.ee/XXXXXXX" class="btn" target="_blank">🌙 無料で相談する（LINE）</a>
       <a href="#" class="btn btn-outline" onclick="alert('準備中です')">📄 鑑定書を購入する</a>
@@ -308,67 +598,114 @@
   <div class="section" style="padding-top:0">
     <p class="section-title"><span>SNS</span>で毎朝の運勢をチェック</p>
     <div class="sns-bar">
-      <a href="https://x.com/YOUR_ACCOUNT" class="sns-btn sns-x" target="_blank">
-        𝕏 フォローする
-      </a>
-      <a href="https://www.threads.net/@YOUR_ACCOUNT" class="sns-btn sns-threads" target="_blank">
-        ≡ Threads をフォロー
-      </a>
+      <a href="https://x.com/YOUR_ACCOUNT" class="sns-btn sns-x" target="_blank">𝕏 フォローする</a>
+      <a href="https://www.threads.net/@YOUR_ACCOUNT" class="sns-btn sns-threads" target="_blank">≡ Threads をフォロー</a>
     </div>
-    <p style="text-align:center;color:var(--muted);font-size:.85rem">
-      毎朝6時に12星座の運勢を自動投稿中 📊
-    </p>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem">毎朝6時に12星座の運勢を自動投稿中 📊</p>
   </div>
 
 </main>
 
-<!-- フッター -->
 <footer>
-  <p>統計占いは、出生季節効果・バイオリズム理論・心理学研究に基づく傾向分析です。</p>
+  <p>統計占いは、出生季節効果・バイオリズム理論・心理学研究・数秘術に基づく傾向分析です。</p>
   <p style="margin-top:8px">医療・法律・財務上の判断には使用しないでください。</p>
   <p style="margin-top:16px">
-    <a href="#">プライバシーポリシー</a> ／
-    <a href="#">お問い合わせ</a>
+    <a href="#">プライバシーポリシー</a> ／ <a href="#">お問い合わせ</a>
   </p>
   <p style="margin-top:16px;font-size:.75rem">© 2026 統計占い All Rights Reserved.</p>
 </footer>
 
 <script>
-// ─── 星座データ ──────────────────────────────────
+// ══════════════════════════════════════════════════
+//  星座データ
+// ══════════════════════════════════════════════════
 const SIGNS = [
-  {name:"牡羊座",emoji:"♈"},
-  {name:"牡牛座",emoji:"♉"},
-  {name:"双子座",emoji:"♊"},
-  {name:"蟹座",  emoji:"♋"},
-  {name:"獅子座",emoji:"♌"},
-  {name:"乙女座",emoji:"♍"},
-  {name:"天秤座",emoji:"♎"},
-  {name:"蠍座",  emoji:"♏"},
-  {name:"射手座",emoji:"♐"},
-  {name:"山羊座",emoji:"♑"},
-  {name:"水瓶座",emoji:"♒"},
-  {name:"魚座",  emoji:"♓"},
+  {name:"牡羊座",emoji:"♈"},{name:"牡牛座",emoji:"♉"},
+  {name:"双子座",emoji:"♊"},{name:"蟹座",  emoji:"♋"},
+  {name:"獅子座",emoji:"♌"},{name:"乙女座",emoji:"♍"},
+  {name:"天秤座",emoji:"♎"},{name:"蠍座",  emoji:"♏"},
+  {name:"射手座",emoji:"♐"},{name:"山羊座",emoji:"♑"},
+  {name:"水瓶座",emoji:"♒"},{name:"魚座",  emoji:"♓"},
 ];
 
-// ─── グローバル状態 ────────────────────────────────
+// ══════════════════════════════════════════════════
+//  ライフパスナンバーデータ
+// ══════════════════════════════════════════════════
+const LIFEPATH = {
+  1:{keyword:"リーダー",desc:"独立心が強く、先駆者的な才能を持ちます。自分の道を切り拓く力が研究で示されています。今日は自分の判断を信じて行動する日。",today:"自己主張が実を結びやすい日。新しいことを始めるエネルギーが高まっています。"},
+  2:{keyword:"調和者",desc:"繊細な感受性と協調性を持ちます。対人関係の調整に優れ、パートナーシップで力を発揮するタイプ。",today:"人との連携が鍵になる日。誰かと一緒に取り組むと相乗効果が生まれます。"},
+  3:{keyword:"表現者",desc:"創造性豊かでコミュニケーション能力が高い。言葉・アート・アイデアで人を惹きつける魅力があります。",today:"発信・表現活動に良い日。思ったことを言葉や形にしてみましょう。"},
+  4:{keyword:"建設者",desc:"実直で勤勉、着実に積み上げる才能を持ちます。計画性と忍耐力で長期的な成功を掴むタイプ。",today:"コツコツした作業が成果につながる日。基盤固めに最適なタイミングです。"},
+  5:{keyword:"探求者",desc:"自由を愛し、変化と冒険を求めます。好奇心旺盛で多彩な経験から成長するタイプ。",today:"変化を恐れないで。新しい出会いや体験がラッキーを呼び込みます。"},
+  6:{keyword:"愛の守護者",desc:"愛情深く、家族や仲間を大切にします。責任感が強く、人の役に立つことで輝くタイプ。",today:"人に寄り添う行動が運気を高める日。誰かのために動くと良いことがあります。"},
+  7:{keyword:"思索者",desc:"知識欲が高く深い洞察力を持ちます。独自の視点と分析力で本質を見抜く力があります。",today:"直感と分析を合わせる日。じっくり考えた答えが正解につながります。"},
+  8:{keyword:"実現者",desc:"目標達成能力が高く、物質的成功を掴む力を持ちます。パワーと決断力でビジネスに強いタイプ。",today:"実行力が光る日。決断を迷っていたなら今日動くタイミングです。"},
+  9:{keyword:"人道主義者",desc:"思いやりが深く、奉仕の精神を持ちます。広い視野で社会全体を見渡す大きなスケールを持つタイプ。",today:"与えることで受け取る日。ギブの精神が思わぬ形で返ってきます。"},
+  11:{keyword:"直観の使者（マスター）",desc:"霊的感受性が高く、インスピレーションに優れます。理想と現実を橋渡しするビジョナリータイプ。",today:"第六感を信じる日。論理より直感が正しい方向に導きます。"},
+  22:{keyword:"夢の建築家（マスター）",desc:"大きなビジョンを現実化する類まれな能力を持ちます。理想を具体的な形にする建設者タイプ。",today:"壮大な目標を紙に書き出す日。書くことでビジョンが明確になります。"},
+  33:{keyword:"愛の師（マスター）",desc:"愛と奉仕の最高表現。慈愛と癒しのエネルギーで周囲に光を与える存在です。",today:"あなたの存在自体が誰かの力になっています。そのままでいることが今日の使命です。"},
+};
+
+// ══════════════════════════════════════════════════
+//  中国干支データ
+// ══════════════════════════════════════════════════
+const CHINESE_ZODIAC = [
+  {emoji:"🐒",name:"申・猿",desc:"機知に富み、適応力が高い。頭の回転が速く、どんな環境でも生き抜く知恵を持ちます。"},
+  {emoji:"🐓",name:"酉・鶏",desc:"勤勉で完璧主義、観察眼が鋭い。細部まで気を配り、誠実に物事をこなす力があります。"},
+  {emoji:"🐕",name:"戌・犬",desc:"誠実で忠実、正義感が強い。信頼を大切にし、友人への献身が運を呼び込みます。"},
+  {emoji:"🐗",name:"亥・猪",desc:"純粋で誠実、豊かさを引き寄せる。まっすぐな心が人を動かし、幸運を招きます。"},
+  {emoji:"🐭",name:"子・鼠",desc:"機知に富み、適応力が高い。チャンスを素早く掴む嗅覚と、蓄財の才能を持ちます。"},
+  {emoji:"🐮",name:"丑・牛",desc:"忍耐強く、誠実で信頼できる。地道な努力が必ず報われる強さを持つタイプです。"},
+  {emoji:"🐯",name:"寅・虎",desc:"勇気があり、カリスマ性が高い。大胆な行動力で道を切り拓く、天性のリーダーです。"},
+  {emoji:"🐰",name:"卯・兎",desc:"優雅で繊細、平和を愛する。人を癒す才能と、芸術的センスに恵まれています。"},
+  {emoji:"🐉",name:"辰・龍",desc:"パワフルで幸運に恵まれやすい。12支の中で最も強い運を持つとされる特別な干支です。"},
+  {emoji:"🐍",name:"巳・蛇",desc:"知的で直感的、神秘的な魅力を持つ。深い洞察力と粘り強さで目標を達成するタイプ。"},
+  {emoji:"🐎",name:"午・馬",desc:"活発でエネルギッシュ、自由を愛する。行動力と社交性で周囲を明るく照らします。"},
+  {emoji:"🐑",name:"未・羊",desc:"芸術的で思いやりがある。穏やかな心と美的センスで人を引き寄せる魅力があります。"},
+];
+
+// ══════════════════════════════════════════════════
+//  生まれ季節データ（心理学研究ベース）
+// ══════════════════════════════════════════════════
+const SEASONS = {
+  spring:{emoji:"🌸",name:"春生まれ（3〜5月）",
+    desc:"活動性と社交性が高い傾向が複数の研究で示されています。新しいことに挑戦するエネルギーに恵まれ、リーダーシップを発揮しやすい季節の子です。",
+    today:"行動を起こすことで運気が開ける日。まず一歩踏み出しましょう。"},
+  summer:{emoji:"☀️",name:"夏生まれ（6〜8月）",
+    desc:"感受性が豊かで感情表現が豊かな傾向があります。人との繋がりを大切にし、情熱的にものごとに取り組む強さを持っています。",
+    today:"感情を素直に表現することでチャンスが広がる日です。"},
+  autumn:{emoji:"🍂",name:"秋生まれ（9〜11月）",
+    desc:"分析力・計画性に優れ、着実に目標を達成する傾向が研究で示されています。慎重かつ論理的な判断が得意です。",
+    today:"データや事実を整理する日に最適。計画を立てると後々有利になります。"},
+  winter:{emoji:"❄️",name:"冬生まれ（12〜2月）",
+    desc:"内省的で創造性が高く、深い洞察力を持つ傾向があります。芸術・学問・研究など専門分野で力を発揮しやすいとされています。",
+    today:"じっくり考えることで本質が見えてくる日。直感を大切に。"},
+};
+
+// ══════════════════════════════════════════════════
+//  グローバル状態
+// ══════════════════════════════════════════════════
 let fortuneData = null;
 
-// ─── データ読み込み ────────────────────────────────
+// ══════════════════════════════════════════════════
+//  データ読み込み
+// ══════════════════════════════════════════════════
 async function loadFortune(){
   try{
-    const cacheBust = new Date().toISOString().split('T')[0]; // 日付変わりでキャッシュ回避
+    const cacheBust = new Date().toISOString().split('T')[0];
     const res = await fetch(`data/fortune_latest.json?v=${cacheBust}`);
     if(!res.ok) throw new Error('データ未生成');
     fortuneData = await res.json();
-    document.getElementById('update-badge').textContent =
-      `✨ ${fortuneData.date_jp} 更新済み`;
+    document.getElementById('update-badge').textContent = `✨ ${fortuneData.date_jp} 更新済み`;
   }catch(e){
-    document.getElementById('update-badge').textContent = '⚠ データ準備中（初回は手動実行が必要）';
+    document.getElementById('update-badge').textContent = '⚠ データ準備中（毎朝6時更新）';
     console.warn('fortune_latest.json が見つかりません:', e.message);
   }
 }
 
-// ─── 星座グリッド生成 ──────────────────────────────
+// ══════════════════════════════════════════════════
+//  星座グリッド
+// ══════════════════════════════════════════════════
 function buildGrid(){
   const grid = document.getElementById('zodiac-grid');
   SIGNS.forEach(sign => {
@@ -381,55 +718,33 @@ function buildGrid(){
   });
 }
 
-// ─── 星座選択 ─────────────────────────────────────
 function selectSign(name, emoji, card){
-  // アクティブ状態切り替え
   document.querySelectorAll('.zodiac-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
-
   const panel = document.getElementById('fortune-panel');
   panel.classList.add('visible');
-
-  if(!fortuneData){
-    showFallback(name, emoji);
-    return;
-  }
-
+  if(!fortuneData){ showFallback(name, emoji); return; }
   const signData = fortuneData.signs[name];
-  if(!signData){
-    showFallback(name, emoji);
-    return;
-  }
-
-  // パネルを表示
+  if(!signData){ showFallback(name, emoji); return; }
   document.getElementById('fortune-loading').style.display = 'none';
   const content = document.getElementById('fortune-content');
   content.style.display = 'block';
-
   document.getElementById('f-emoji').textContent = emoji;
   document.getElementById('f-name').textContent = name;
   document.getElementById('f-date').textContent = fortuneData.date_jp + ' の運勢';
-
-  // Markdown を簡易レンダリング
   document.getElementById('f-body').innerHTML = simpleMarkdown(signData.website || signData.tweet);
-
-  // スクロール
   panel.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-// ─── データなし時のフォールバック ──────────────────
 function showFallback(name, emoji){
   document.getElementById('fortune-loading').style.display = 'none';
-  const content = document.getElementById('fortune-content');
-  content.style.display = 'block';
+  document.getElementById('fortune-content').style.display = 'block';
   document.getElementById('f-emoji').textContent = emoji;
   document.getElementById('f-name').textContent = name;
   document.getElementById('f-date').textContent = '準備中';
-  document.getElementById('f-body').innerHTML =
-    '<p>本日の運勢データを準備中です。<br>毎朝6時に更新されます。<br>SNS でも最新の運勢を配信中！</p>';
+  document.getElementById('f-body').innerHTML = '<p>本日の運勢データを準備中です。<br>毎朝6時に更新されます。SNS でも最新の運勢を配信中！</p>';
 }
 
-// ─── 簡易 Markdown → HTML ─────────────────────────
 function simpleMarkdown(md){
   if(!md) return '';
   return md
@@ -438,7 +753,7 @@ function simpleMarkdown(md){
     .replace(/^## (.+)$/gm,'<h2>$1</h2>')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/^- (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
     .replace(/\n{2,}/g,'</p><p>')
     .replace(/^(?!<[hup])/gm,'')
     .trim()
@@ -446,9 +761,191 @@ function simpleMarkdown(md){
     .replace(/(.)$/,'$1</p>');
 }
 
-// ─── 初期化 ───────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  生年月日セレクト生成
+// ══════════════════════════════════════════════════
+function buildDateSelects(){
+  const yearSel = document.getElementById('birth-year');
+  const monthSel = document.getElementById('birth-month');
+  const daySel = document.getElementById('birth-day');
+
+  const currentYear = new Date().getFullYear();
+  yearSel.innerHTML = '<option value="">年</option>';
+  for(let y = currentYear - 10; y >= 1930; y--){
+    yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+  }
+  monthSel.innerHTML = '<option value="">月</option>';
+  for(let m = 1; m <= 12; m++){
+    monthSel.innerHTML += `<option value="${m}">${m}</option>`;
+  }
+  daySel.innerHTML = '<option value="">日</option>';
+  for(let d = 1; d <= 31; d++){
+    daySel.innerHTML += `<option value="${d}">${d}</option>`;
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  バイオリズム計算
+// ══════════════════════════════════════════════════
+function calcBiorhythm(birthDate){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const birth = new Date(birthDate);
+  birth.setHours(0,0,0,0);
+  const days = Math.floor((today - birth) / 86400000);
+  return {
+    physical:    Math.sin(2 * Math.PI * days / 23),
+    emotional:   Math.sin(2 * Math.PI * days / 28),
+    intellectual:Math.sin(2 * Math.PI * days / 33),
+  };
+}
+
+function bioLabel(val){
+  const pct = Math.round(val * 100);
+  if(val > 0.7)  return {text:`ピーク期 (${pct}%)`, state:'peak'};
+  if(val > 0.2)  return {text:`上昇中 (${pct}%)`,   state:'up'};
+  if(val > -0.2) return {text:`転換期 (${pct}%)`,   state:'mid'};
+  if(val > -0.7) return {text:`下降中 (${pct}%)`,   state:'down'};
+  return              {text:`低下期 (${pct}%)`,      state:'low'};
+}
+
+function bioColor(state){
+  return {peak:'#2ecc71',up:'#3498db',mid:'#f39c12',down:'#e67e22',low:'#e74c3c'}[state];
+}
+
+function setBioBar(barId, labelId, val, defaultColor){
+  const pct = Math.round((val + 1) / 2 * 100); // -1~1 → 0~100%
+  const bar = document.getElementById(barId);
+  const lbl = document.getElementById(labelId);
+  const info = bioLabel(val);
+  bar.style.width = pct + '%';
+  bar.style.left = '0';
+  bar.style.background = bioColor(info.state);
+  lbl.textContent = info.text;
+  lbl.style.color = bioColor(info.state);
+}
+
+// ══════════════════════════════════════════════════
+//  ライフパスナンバー計算
+// ══════════════════════════════════════════════════
+function calcLifePath(year, month, day){
+  const digits = `${year}${String(month).padStart(2,'0')}${String(day).padStart(2,'0')}`.split('').map(Number);
+  let sum = digits.reduce((a,b) => a+b, 0);
+  while(sum > 9 && sum !== 11 && sum !== 22 && sum !== 33){
+    sum = sum.toString().split('').map(Number).reduce((a,b) => a+b, 0);
+  }
+  return sum;
+}
+
+// ══════════════════════════════════════════════════
+//  中国干支計算
+// ══════════════════════════════════════════════════
+function calcChineseZodiac(year){
+  return CHINESE_ZODIAC[(year - 4) % 12];
+}
+
+// ══════════════════════════════════════════════════
+//  生まれ季節
+// ══════════════════════════════════════════════════
+function getSeason(month){
+  if(month >= 3 && month <= 5)  return SEASONS.spring;
+  if(month >= 6 && month <= 8)  return SEASONS.summer;
+  if(month >= 9 && month <= 11) return SEASONS.autumn;
+  return SEASONS.winter;
+}
+
+// ══════════════════════════════════════════════════
+//  パーソナル鑑定メイン
+// ══════════════════════════════════════════════════
+function calcPersonal(){
+  const year  = parseInt(document.getElementById('birth-year').value);
+  const month = parseInt(document.getElementById('birth-month').value);
+  const day   = parseInt(document.getElementById('birth-day').value);
+
+  if(!year || !month || !day){
+    alert('生年月日をすべて選択してください');
+    return;
+  }
+
+  const birthDate = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+  // ── バイオリズム ─────────────────────
+  const bio = calcBiorhythm(birthDate);
+  setBioBar('bio-phys-bar','bio-phys-label', bio.physical,    '#2ecc71');
+  setBioBar('bio-emo-bar', 'bio-emo-label',  bio.emotional,   '#9b59b6');
+  setBioBar('bio-int-bar', 'bio-int-label',  bio.intellectual,'#3498db');
+
+  // バイオリズムサマリー
+  const physInfo = bioLabel(bio.physical);
+  const emoInfo  = bioLabel(bio.emotional);
+  const intInfo  = bioLabel(bio.intellectual);
+  let bioSummary = '';
+  if(physInfo.state === 'peak' || physInfo.state === 'up')
+    bioSummary += '身体的に充実しており活動に最適。';
+  else if(physInfo.state === 'low' || physInfo.state === 'down')
+    bioSummary += '身体の休息を意識して。無理な運動は控えめに。';
+
+  if(emoInfo.state === 'peak' || emoInfo.state === 'up')
+    bioSummary += '感情が安定・高揚しており対人運◎。';
+  else if(emoInfo.state === 'low' || emoInfo.state === 'down')
+    bioSummary += '感情的な判断を避け、冷静さを保つと吉。';
+
+  if(intInfo.state === 'peak' || intInfo.state === 'up')
+    bioSummary += '知的活動・学習・分析に最良のタイミング。';
+  document.getElementById('bio-summary').textContent = bioSummary || '今日はバランスの取れた一日になりそうです。';
+
+  // ── ライフパスナンバー ───────────────
+  const lp = calcLifePath(year, month, day);
+  const lpData = LIFEPATH[lp] || LIFEPATH[9];
+  document.getElementById('lp-number').textContent = lp;
+  document.getElementById('lp-keyword').textContent = `「${lpData.keyword}」`;
+  document.getElementById('lp-desc').textContent = lpData.desc;
+
+  // ── 中国干支 ─────────────────────────
+  const china = calcChineseZodiac(year);
+  document.getElementById('china-emoji').textContent = china.emoji;
+  document.getElementById('china-name').textContent  = china.name;
+  document.getElementById('china-desc').textContent  = china.desc;
+
+  // ── 生まれ季節 ───────────────────────
+  const season = getSeason(month);
+  document.getElementById('season-emoji').textContent = season.emoji;
+  document.getElementById('season-name').textContent  = season.name;
+  document.getElementById('season-desc').textContent  = season.desc;
+
+  // ── 今日のメッセージ（統合） ──────────
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+  const message =
+    `【数秘${lp}番・${lpData.keyword}の今日】` +
+    `\n${lpData.today}` +
+    `\n\n【${china.name}として今日すべきこと】` +
+    `\n${china.desc.slice(0,40)}…そのエネルギーが今日の追い風になっています。` +
+    `\n\n【${season.name}の特性を活かすには】` +
+    `\n${season.today}`;
+  document.getElementById('personal-message').textContent = message;
+
+  // ── ヘッダー ─────────────────────────
+  document.getElementById('p-birth-display').textContent =
+    `${year}年${month}月${day}日生まれ｜${todayStr}の鑑定`;
+
+  // ── シェアテキスト ────────────────────
+  const shareText = `🔮 ${todayStr} の私の統計鑑定\n📊 ライフパス: ${lp}番「${lpData.keyword}」\n🐉 干支: ${china.name}\n💪 バイオリズム身体力: ${bioLabel(bio.physical).text}\n\n#統計占い`;
+  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(location.href)}`;
+  document.getElementById('share-btn').href = shareUrl;
+
+  // ── 表示 ─────────────────────────────
+  const result = document.getElementById('personal-result');
+  result.classList.add('visible');
+  result.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ══════════════════════════════════════════════════
+//  初期化
+// ══════════════════════════════════════════════════
 (async function init(){
   buildGrid();
+  buildDateSelects();
   await loadFortune();
 })();
 </script>
